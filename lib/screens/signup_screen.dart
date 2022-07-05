@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:instagram_flutter/resources/auth_methods.dart';
+import 'package:instagram_flutter/responsive/mobile_screen_layout.dart';
+import 'package:instagram_flutter/responsive/responsive_layout_screen.dart';
+import 'package:instagram_flutter/responsive/web_screen_layout.dart';
+import 'package:instagram_flutter/screens/login_screen.dart';
 import 'package:instagram_flutter/utils/colors.dart';
 import 'package:instagram_flutter/utils/utils.dart';
 import 'package:instagram_flutter/widgets/text_field_input.dart';
@@ -23,7 +27,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _bioController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   Uint8List image;
-  bool isLoading=false;
+  bool isLoading = false;
   @override
   void dispose() {
     super.dispose();
@@ -38,28 +42,39 @@ class _SignupScreenState extends State<SignupScreen> {
     image = im;
     setState(() {});
   }
-void signUpUser()async
-{
-  setState(() {
-    isLoading=true;
-  });
-  print("object");
-                String res = await AuthMethods().signUpUser(
-                    bio: _bioController.text,
-                    email: _emailController.text,
-                    password: _passwordController.text,
-                    username: _usernameController.text,
-                    file: image);
 
-                     setState(() {
-    isLoading=false;
-  });
+  void signUpUser() async {
+    setState(() {
+      isLoading = true;
+    });
+    print("object");
+    String res = await AuthMethods().signUpUser(
+        bio: _bioController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+        username: _usernameController.text,
+        file: image);
 
-                    if(res!='Success')
-                    {
-                      showSnackBar(res, context);
-                    }
-}
+    setState(() {
+      isLoading = false;
+    });
+
+    if (res != 'Success') {
+      showSnackBar(res, context);
+    } else {
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => ResponsiveLayout(
+                mobileScreenLayout: MobileScreenLayout(),
+                webScreenLayout: WebScreenLayout(),
+              )));
+    }
+  }
+
+  void navigateToSignIn() {
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => LoginScreen()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -173,12 +188,17 @@ void signUpUser()async
                   padding: EdgeInsets.symmetric(vertical: 8),
                 ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: navigateToSignIn,
                   child: Container(
-                    child:isLoading?Center(child: CircularProgressIndicator(color: primaryColor,)): Text(
-                      "Sign up.",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                    child: isLoading
+                        ? Center(
+                            child: CircularProgressIndicator(
+                            color: primaryColor,
+                          ))
+                        : Text(
+                            "Log in",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                     padding: EdgeInsets.symmetric(vertical: 8),
                   ),
                 )

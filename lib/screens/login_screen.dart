@@ -1,8 +1,15 @@
 // ignore_for_file: prefer_const_constructors_in_immutables
 
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:instagram_flutter/resources/auth_methods.dart';
+import 'package:instagram_flutter/responsive/mobile_screen_layout.dart';
+import 'package:instagram_flutter/responsive/responsive_layout_screen.dart';
+import 'package:instagram_flutter/responsive/web_screen_layout.dart';
+import 'package:instagram_flutter/screens/home_screen.dart';
+import 'package:instagram_flutter/screens/signup_screen.dart';
 import 'package:instagram_flutter/utils/colors.dart';
 import 'package:instagram_flutter/utils/utils.dart';
 import 'package:instagram_flutter/widgets/text_field_input.dart';
@@ -17,7 +24,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-bool _isLoading=false;
+  bool _isLoading = false;
   @override
   void dispose() {
     super.dispose();
@@ -25,20 +32,30 @@ bool _isLoading=false;
     _passwordController.dispose();
   }
 
-  void loginUser()async
-  {setState(() {
-    _isLoading=true;
-  });
-    String res=await AuthMethods().loginUser(email: _emailController.text,password: _passwordController.text);
-  setState(() {
-    _isLoading=false;
-  });
-  if(res=='Success')
-  {
+  void loginUser() async {
+    setState(() {
+      _isLoading = true;
+    });
+    String res = await AuthMethods().loginUser(
+        email: _emailController.text, password: _passwordController.text);
+    setState(() {
+      _isLoading = false;
+    });
+    if (res == 'Success') {
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => ResponsiveLayout(
+                mobileScreenLayout: MobileScreenLayout(),
+                webScreenLayout: WebScreenLayout(),
+              )));
+    } else {
+      showSnackBar(res, context);
+    }
+  }
 
-  }else{
-    showSnackBar(res, context);
-  }}
+  void navigateToSignUp() {
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => SignupScreen()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,9 +97,14 @@ bool _isLoading=false;
               height: 24,
             ),
             InkWell(
-              onTap: () {},
+              onTap: loginUser,
               child: Container(
-                child:_isLoading?Center(child: CircularProgressIndicator(color: primaryColor,)): Text("Log in"),
+                child: _isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(
+                        color: primaryColor,
+                      ))
+                    : Text("Log in"),
                 alignment: Alignment.center,
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(vertical: 12),
@@ -108,7 +130,7 @@ bool _isLoading=false;
                   padding: EdgeInsets.symmetric(vertical: 8),
                 ),
                 GestureDetector(
-                  onTap:loginUser,
+                  onTap: navigateToSignUp,
                   child: Container(
                     child: Text(
                       "Sign up.",
